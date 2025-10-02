@@ -1,0 +1,22 @@
+# core PDF extraction
+pdfplumber
+
+# embeddings (local model)
+sentence-transformers
+
+# Pinecone client (only if you plan to test Pinecone this milestone)
+pinecone-client
+
+# environment variable helper
+python-dotenv
+
+# utils
+pandas
+tqdm
+
+# testing
+pytest
+
+# optional OCR for scanned PDFs (install system tesseract separately if you use)
+# tika
+# pytesseract
