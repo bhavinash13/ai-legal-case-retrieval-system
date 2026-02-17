@@ -1,5 +1,4 @@
-# ai-legal-case-retrieval-system
-AI Legal Case Retrieval System
+## AI Legal Case Retrieval System
 
 AI Legal Case Retrieval System – Search & Ranking Engine GitHub Link
 Technologies used: Python, Streamlit, Pinecone, MongoDB, OpenAI APIs
