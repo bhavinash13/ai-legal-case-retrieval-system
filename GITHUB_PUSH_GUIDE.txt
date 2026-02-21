@@ -1,0 +1,247 @@
+═══════════════════════════════════════════════════════════════
+🔒 GITHUB PUSH GUIDE - SECURE YOUR PROJECT
+═══════════════════════════════════════════════════════════════
+
+✅ YOUR PROJECT IS NOW READY TO PUSH TO GITHUB!
+
+All sensitive files are protected by .gitignore
+
+═══════════════════════════════════════════════════════════════
+🛡️ WHAT'S PROTECTED (Will NOT be pushed)
+═══════════════════════════════════════════════════════════════
+
+✅ .env file (Contains API keys - NEVER pushed)
+✅ venv/ folder (Virtual environment - Large, not needed)
+✅ __pycache__/ (Python cache - Auto-generated)
+✅ data/raw/* (Your PDF files - Large files)
+✅ data/extracted/* (Processed data - Large files)
+✅ data/chunks/* (Chunk files - Large files)
+✅ data/embeddings/* (Embedding files - Large files)
+✅ manifests/* (Manifest files - Not needed)
+✅ logs/ (Log files - Not needed)
+✅ node_modules/ (If any - Large files)
+✅ *.log files (Log files)
+✅ *.pyc files (Python compiled)
+
+═══════════════════════════════════════════════════════════════
+📁 WHAT WILL BE PUSHED (Safe to share)
+═══════════════════════════════════════════════════════════════
+
+✅ All Python source code (.py files)
+✅ README.md and documentation
+✅ requirements.txt
+✅ .env.example (Template without real keys)
+✅ .gitignore (Protection rules)
+✅ Directory structure (with .gitkeep files)
+✅ images/ folder
+✅ prompts/ folder
+✅ scripts/ folder
+
+═══════════════════════════════════════════════════════════════
+🔍 PRE-PUSH SECURITY CHECKLIST
+═══════════════════════════════════════════════════════════════
+
+BEFORE PUSHING, VERIFY:
+
+□ .env file exists and contains your real API keys
+□ .env.example exists with placeholder values
+□ .gitignore file is present
+□ No API keys in any .py files
+□ No passwords in any files
+□ No personal data in code
+
+RUN THIS COMMAND TO CHECK:
+──────────────────────────
+git status
+
+LOOK FOR:
+- Should NOT see .env in the list
+- Should NOT see venv/ in the list
+- Should NOT see data/raw/ files
+- Should see .env.example
+- Should see .gitignore
+
+═══════════════════════════════════════════════════════════════
+🚀 STEP-BY-STEP GITHUB PUSH
+═══════════════════════════════════════════════════════════════
+
+STEP 1: Initialize Git (if not already done)
+─────────────────────────────────────────────
+cd C:\Users\bhavinash\Web_Projects\InfosysSpringboard_Internship\ai-legal-reference
+git init
+
+STEP 2: Check What Will Be Committed
+─────────────────────────────────────
+git status
+
+VERIFY:
+✅ .env is NOT listed (should be ignored)
+✅ venv/ is NOT listed (should be ignored)
+✅ Only source code and docs are listed
+
+STEP 3: Add Files to Git
+─────────────────────────
+git add .
+
+STEP 4: Verify Again (IMPORTANT!)
+──────────────────────────────────
+git status
+
+CHECK:
+✅ .env is NOT in "Changes to be committed"
+✅ No sensitive files listed
+
+STEP 5: Commit Changes
+───────────────────────
+git commit -m "Initial commit: AI Legal Assistant with dual-mode support"
+
+STEP 6: Create GitHub Repository
+─────────────────────────────────
+1. Go to: https://github.com/new
+2. Repository name: ai-legal-reference
+3. Description: AI-powered Legal Assistant for Indian Law
+4. Choose: Private (recommended) or Public
+5. DO NOT initialize with README (you already have one)
+6. Click "Create repository"
+
+STEP 7: Connect to GitHub
+──────────────────────────
+git remote add origin https://github.com/YOUR_USERNAME/ai-legal-reference.git
+
+Replace YOUR_USERNAME with your GitHub username
+
+STEP 8: Push to GitHub
+───────────────────────
+git branch -M main
+git push -u origin main
+
+STEP 9: Verify on GitHub
+─────────────────────────
+1. Go to your repository on GitHub
+2. Check files are there
+3. VERIFY .env is NOT visible
+4. VERIFY venv/ is NOT visible
+
+═══════════════════════════════════════════════════════════════
+🔒 DOUBLE-CHECK SECURITY
+═══════════════════════════════════════════════════════════════
+
+AFTER PUSHING, VERIFY ON GITHUB:
+
+□ .env file is NOT visible
+□ No API keys visible in any file
+□ No passwords visible
+□ .env.example is visible (with placeholders)
+□ README.md is visible
+□ Source code is visible
+
+IF YOU SEE .env FILE ON GITHUB:
+────────────────────────────────
+🚨 IMMEDIATELY:
+1. Delete the repository
+2. Regenerate ALL API keys
+3. Check .gitignore is correct
+4. Try again
+
+═══════════════════════════════════════════════════════════════
+📝 UPDATING YOUR REPOSITORY
+═══════════════════════════════════════════════════════════════
+
+WHEN YOU MAKE CHANGES:
+
+1. Make your code changes
+2. Check status:
+   git status
+
+3. Add changes:
+   git add .
+
+4. Commit:
+   git commit -m "Description of changes"
+
+5. Push:
+   git push
+
+═══════════════════════════════════════════════════════════════
+🎓 FOR COLLABORATORS/EVALUATORS
+═══════════════════════════════════════════════════════════════
+
+SETUP INSTRUCTIONS (Add to README):
+
+1. Clone the repository:
+   git clone https://github.com/YOUR_USERNAME/ai-legal-reference.git
+
+2. Create virtual environment:
+   python -m venv venv
+   venv\Scripts\activate
+
+3. Install dependencies:
+   pip install -r requirements.txt
+
+4. Copy .env.example to .env:
+   copy .env.example .env
+
+5. Add your API keys to .env file
+
+6. Run the app:
+   streamlit run app.py
+
+═══════════════════════════════════════════════════════════════
+⚠️ IMPORTANT REMINDERS
+═══════════════════════════════════════════════════════════════
+
+1. NEVER commit .env file
+2. NEVER commit API keys in code
+3. ALWAYS use .env.example for templates
+4. ALWAYS check git status before pushing
+5. REGENERATE keys if accidentally pushed
+
+═══════════════════════════════════════════════════════════════
+🔧 TROUBLESHOOTING
+═══════════════════════════════════════════════════════════════
+
+ISSUE: .env file appears in git status
+FIX: 
+git rm --cached .env
+git commit -m "Remove .env from tracking"
+
+ISSUE: Large files rejected by GitHub
+FIX: Already handled by .gitignore
+
+ISSUE: venv/ folder being tracked
+FIX:
+git rm -r --cached venv/
+git commit -m "Remove venv from tracking"
+
+═══════════════════════════════════════════════════════════════
+✅ FINAL CHECKLIST
+═══════════════════════════════════════════════════════════════
+
+BEFORE PUSHING:
+□ .gitignore file is present
+□ .env.example has placeholder values
+□ .env has real keys (but is ignored)
+□ Ran "git status" and verified
+□ No sensitive data in code
+
+AFTER PUSHING:
+□ Checked GitHub repository
+□ .env is NOT visible
+□ README.md is visible
+□ Code is visible
+□ .env.example is visible
+
+═══════════════════════════════════════════════════════════════
+🎉 YOU'RE READY!
+═══════════════════════════════════════════════════════════════
+
+Your project is properly configured for GitHub!
+
+✅ Sensitive files protected
+✅ .gitignore configured
+✅ Directory structure preserved
+✅ Safe to push
+
+PUSH WITH CONFIDENCE! 🚀
+
+═══════════════════════════════════════════════════════════════

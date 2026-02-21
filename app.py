@@ -53,6 +53,8 @@ if "active_chat_id" not in st.session_state:
     st.session_state.active_chat_id = None
 if "show_profile" not in st.session_state:
     st.session_state.show_profile = False
+if "response_mode" not in st.session_state:
+    st.session_state.response_mode = "Local (No API Required)"
 
 unique_css_key = random.randint(0, 99999)
 
@@ -750,6 +752,35 @@ with st.sidebar:
     
     st.divider()
     
+    # Response Mode Selector
+    st.markdown("### ⚙️ Response Mode")
+    mode_options = [
+        "Local (No API Required)",
+        "OpenAI (Requires API Key)"
+    ]
+    selected_mode = st.selectbox(
+        "🤖 Choose AI Mode",
+        mode_options,
+        index=mode_options.index(st.session_state.response_mode),
+        help="Local mode works without OpenAI. OpenAI mode provides conversational answers."
+    )
+    
+    if selected_mode != st.session_state.response_mode:
+        st.session_state.response_mode = selected_mode
+        st.rerun()
+    
+    # Show mode status - only show warning if OpenAI mode is selected
+    if st.session_state.response_mode == "Local (No API Required)":
+        st.success("✅ Local Mode Active")
+    else:
+        # Only check OpenAI availability when OpenAI mode is selected
+        if assistant and hasattr(assistant, 'openai_available') and assistant.openai_available:
+            st.success("✅ OpenAI Mode Active")
+        else:
+            st.warning("⚠️ OpenAI unavailable. Switch to Local Mode or check API key.")
+    
+    st.divider()
+    
     # Theme selector
     theme_keys = list(THEMES.keys())
     idx = theme_keys.index(st.session_state["theme"]) if st.session_state["theme"] in theme_keys else 0
@@ -837,8 +868,17 @@ with st.sidebar:
             if assistant:
                 with st.spinner("⚖️ Analyzing legal documents..."):
                     matches = assistant.retrieve_context(q, top_k=5)
-                    answer_data = assistant.format_legal_answer(q, matches)
-                if "error" not in answer_data:
+                    # Use selected mode
+                    mode = "local" if st.session_state.response_mode == "Local (No API Required)" else "openai"
+                    answer_data = assistant.format_legal_answer(q, matches, mode=mode)
+                
+                if "error" in answer_data:
+                    # Show error in chat
+                    error_msg = answer_data["error"]
+                    assistant_msg = {"role": "assistant", "content": error_msg}
+                    st.session_state.messages.append(assistant_msg)
+                    save_chat_messages(st.session_state.active_chat_id, [user_msg, assistant_msg])
+                else:
                     # Use clean answer without formatting
                     assistant_msg = {"role": "assistant", "content": answer_data['answer']}
                     st.session_state.messages.append(assistant_msg)
@@ -945,7 +985,8 @@ if user_query := st.chat_input("Type your legal question..."):
         # For greetings, don't retrieve documents
         with st.spinner("🤖 Thinking..."):
             try:
-                answer_data = assistant.format_legal_answer(user_query, [])
+                mode = "local" if st.session_state.response_mode == "Local (No API Required)" else "openai"
+                answer_data = assistant.format_legal_answer(user_query, [], mode=mode)
             except Exception as e:
                 st.error(f"Error: {e}")
                 st.stop()
@@ -954,13 +995,19 @@ if user_query := st.chat_input("Type your legal question..."):
         with st.spinner("⚖️ Analyzing legal documents..."):
             try:
                 matches = assistant.retrieve_context(user_query, top_k=5)
-                answer_data = assistant.format_legal_answer(user_query, matches)
+                mode = "local" if st.session_state.response_mode == "Local (No API Required)" else "openai"
+                answer_data = assistant.format_legal_answer(user_query, matches, mode=mode)
             except Exception as e:
                 st.error(f"Error: {e}")
                 st.stop()
 
     if "error" in answer_data:
-        st.error(answer_data["error"])
+        error_msg = answer_data["error"]
+        st.error(error_msg)
+        # Also add error to chat history so user can see it
+        assistant_msg = {"role": "assistant", "content": error_msg}
+        st.session_state.messages.append(assistant_msg)
+        st.rerun()
     else:
         response = answer_data["answer"]
         

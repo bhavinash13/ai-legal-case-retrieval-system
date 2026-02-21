@@ -1,8 +1,70 @@
-.venv/ 
-__pycache__/ 
-*.pyc 
-*.log 
-.env 
-data\raw\* 
-data\extracted\* 
-manifests\* 
+# Environment variables (SENSITIVE - Never commit)
+.env
+
+# Virtual environment
+venv/
+.venv/
+env/
+ENV/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+
+# Logs
+*.log
+logs/
+
+# Data files (Large files - Not needed in repo)
+data/raw/*
+data/extracted/*
+data/chunks/*
+data/embeddings/*
+manifests/*
+
+# Keep directory structure but ignore contents
+!data/raw/.gitkeep
+!data/extracted/.gitkeep
+!data/chunks/.gitkeep
+!data/embeddings/.gitkeep
+!manifests/.gitkeep
+
+# IDE specific
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS specific
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Node modules (if any)
+node_modules/
+package-lock.json
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Temporary files
+*.tmp
+*.bak
+*.swp

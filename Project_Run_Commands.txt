@@ -1,0 +1,139 @@
+Steps to run this project freshely:
+----------------------------------
+
+✅ Step 1 — Open Terminal in Project Folder
+
+In VS Code terminal:
+cd C:\Users\bhavinash\Web_Projects\InfosysSpringboard_Internship\ai-legal-reference
+
+✅ Step 2 — Create Virtual Environment
+
+Go inside your project folder:
+cd C:\Users\bhavinash\Web_Projects\InfosysSpringboard_Internship\ai-legal-reference
+
+Now create venv:
+python -m venv venv
+
+Activate it:
+venv\Scripts\activate
+
+You should see:
+(venv) PS C:\...
+
+✅ STEP 3 — Install Requirements
+
+Run:
+pip install --upgrade pip
+python -m pip install --upgrade pip
+
+Then:
+pip install -r requirements.txt
+
+Wait until everything installs.
+
+✅ STEP 3.5 — OpenAI API Key (OPTIONAL)
+
+NOTE: OpenAI API key is now OPTIONAL!
+
+Your chatbot has TWO MODES:
+
+1) Local Mode (DEFAULT) - Works WITHOUT OpenAI
+   ✅ Always works
+   ✅ No API key needed
+   ✅ Returns legal documents directly
+
+2) OpenAI Mode - Requires valid API key
+   ✅ Conversational responses
+   ✅ Natural language answers
+   ⚠️ Needs valid API key
+
+TO USE LOCAL MODE (Recommended for testing):
+- Just run the app, it works by default!
+- Select "Local (No API Required)" in sidebar
+
+TO USE OPENAI MODE:
+1. Get NEW API key from: https://platform.openai.com/api-keys
+2. Open .env file
+3. Replace this line:
+   OPENAI_API_KEY=sk-proj-RW-JKAbJX0GC...
+   
+   With your NEW key:
+   OPENAI_API_KEY=sk-proj-YOUR_NEW_KEY_HERE
+
+4. Save the file
+5. Restart app
+6. Select "OpenAI (Requires API Key)" in sidebar
+
+✅ STEP 4 — Run Streamlit App
+
+Now run:
+
+streamlit run app.py
+
+If streamlit not found:
+
+pip install streamlit
+
+Then run again.
+
+✅ Expected Output
+
+You should see:
+
+Local URL: http://localhost:8501
+
+Open that link in browser.
+
+----------------------------------
+
+-->> If MongoDB Error Comes
+
+Make sure in MongoDB Atlas:
+
+Go to Network Access
+
+Add IP:
+
+0.0.0.0/0
+
+(Allow from anywhere — for testing)
+
+OR add your current IP.
+
+----------------------------------
+
+-->> If Chatbot Not Responding
+
+1. Make sure you're in LOCAL MODE (default)
+   - Check sidebar: "Local (No API Required)" should be selected
+   - This mode ALWAYS works, no API needed
+
+2. If using OpenAI Mode:
+   - Check if you updated OpenAI API key in .env
+   - Look for error message in chat
+   - Switch to Local Mode if API unavailable
+
+3. Restart Streamlit (Ctrl+C, then run again)
+4. Error messages now show in the chat
+5. Read the error and follow instructions
+
+----------------------------------
+
+NEW FEATURE: Dual-Mode System
+
+Your chatbot now has TWO modes:
+
+⚙️ Local Mode (No API Required) - DEFAULT
+   - Works without OpenAI
+   - Returns legal documents directly
+   - Always reliable
+   - Perfect for demos and testing
+
+🤖 OpenAI Mode (Requires API Key)
+   - Natural conversational responses
+   - Needs valid OpenAI API key
+   - Better for natural language
+
+Switch modes in the sidebar under "⚙️ Response Mode"
+
+Read DUAL_MODE_GUIDE.md for complete details!

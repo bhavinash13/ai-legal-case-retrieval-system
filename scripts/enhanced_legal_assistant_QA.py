@@ -13,11 +13,34 @@ load_dotenv()
 
 class EnhancedLegalAssistant:
     def __init__(self):
-        # Initialize clients
-        self.openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        # Initialize Pinecone and embedding model (always needed)
         self.pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
         self.index = self.pc.Index(os.getenv("PINECONE_INDEX_NAME", "legal-index-v1"))
         self.embed_model = SentenceTransformer('all-MiniLM-L6-v2')
+        
+        # Initialize OpenAI client (may be None if key invalid)
+        self.openai_client = None
+        self.openai_available = False
+        try:
+            api_key = os.getenv("OPENAI_API_KEY")
+            if api_key and len(api_key) > 20 and not api_key.startswith("your_"):
+                self.openai_client = OpenAI(api_key=api_key)
+                # Test the API key with a minimal request
+                try:
+                    test_response = self.openai_client.chat.completions.create(
+                        model="gpt-3.5-turbo",
+                        messages=[{"role": "user", "content": "test"}],
+                        max_tokens=5
+                    )
+                    self.openai_available = True
+                    print("✅ OpenAI API connected successfully")
+                except Exception as test_error:
+                    print(f"⚠️ OpenAI API key invalid: {test_error}")
+                    self.openai_available = False
+                    self.openai_client = None
+        except Exception as e:
+            print(f"⚠️ OpenAI initialization failed: {e}")
+            self.openai_available = False
         
         # Load system prompt
         self.system_prompt = self._load_system_prompt()
@@ -60,24 +83,34 @@ class EnhancedLegalAssistant:
         matches = sorted(matches, key=lambda x: x['adjusted_score'], reverse=True)[:top_k]
         return matches
     
-    def format_legal_answer(self, query: str, matches: list) -> dict:
-        """Generate answer using system prompt"""
+    def format_legal_answer(self, query: str, matches: list, mode: str = "openai") -> dict:
+        """Generate answer using OpenAI or local mode"""
         
-        # Check if this is a simple greeting or non-legal query
+        if mode == "local":
+            return self.generate_local_response(query, matches)
+        else:
+            return self.generate_openai_response(query, matches)
+    
+    def generate_openai_response(self, query: str, matches: list) -> dict:
+        """Generate answer using OpenAI API"""
+        
+        # Check if OpenAI is available
+        if not self.openai_available or not self.openai_client:
+            return {"error": "⚠️ OpenAI Mode Error: OpenAI API is not available. Please check your API key or switch to Local Mode."}
+        
+        # Check if this is a simple greeting
         query_lower = query.lower().strip()
         simple_greetings = ['hi', 'hello', 'hey', 'good morning', 'good evening', 'how are you']
         
-        # For simple greetings, don't use legal documents
         if any(greeting in query_lower for greeting in simple_greetings) and len(query.split()) <= 3:
             user_prompt = f"User Question: {query}"
         else:
-            # Build context from legal documents for legal queries
+            # Build context from legal documents
             context_blocks = []
             for i, match in enumerate(matches, 1):
                 metadata = match.get('metadata', {})
                 source = metadata.get('source_file', 'Unknown')
                 text = metadata.get('text', '')
-                
                 context_blocks.append(f"Document {i} ({source}):\n{text}")
             
             context = "\n\n".join(context_blocks) if context_blocks else "No relevant legal documents found."
@@ -93,8 +126,8 @@ User Question: {query}"""
                     {"role": "system", "content": self.system_prompt},
                     {"role": "user", "content": user_prompt}
                 ],
-                temperature=0.1,
-                max_tokens=100
+                temperature=0.7,
+                max_tokens=500
             )
             
             answer = response.choices[0].message.content.strip()
@@ -103,11 +136,67 @@ User Question: {query}"""
                 "answer": answer,
                 "sources": [m.get('metadata', {}).get('source_file') for m in matches],
                 "confidence": self._assess_confidence(matches),
-                "context_used": len(matches)
+                "context_used": len(matches),
+                "mode": "openai"
             }
             
         except Exception as e:
-            return {"error": f"Failed to generate answer: {e}"}
+            error_msg = str(e)
+            print(f"OpenAI API Error: {error_msg}")
+            
+            if "401" in error_msg or "authentication" in error_msg.lower() or "api key" in error_msg.lower():
+                return {"error": "⚠️ OpenAI API Key Error: Your API key is invalid or expired. Switch to Local Mode or update your API key."}
+            elif "quota" in error_msg.lower() or "billing" in error_msg.lower():
+                return {"error": "⚠️ OpenAI Quota Error: No credits available. Switch to Local Mode or add billing."}
+            elif "rate_limit" in error_msg.lower():
+                return {"error": "⚠️ Rate Limit: Too many requests. Try Local Mode or wait a moment."}
+            else:
+                return {"error": f"⚠️ OpenAI API Error: {error_msg}"}
+    
+    def generate_local_response(self, query: str, matches: list) -> dict:
+        """Generate answer using only retrieved documents (no OpenAI)"""
+        
+        if not matches:
+            return {
+                "answer": "I couldn't find relevant information in the legal database for your query. Please try rephrasing your question or ask about Indian Penal Code (IPC), Criminal Procedure Code (CrPC), or Constitutional law.",
+                "sources": [],
+                "confidence": "very_low",
+                "context_used": 0,
+                "mode": "local"
+            }
+        
+        # Build response from top matches
+        response_parts = []
+        sources = []
+        
+        response_parts.append(f"📚 Based on the legal documents, here's what I found:\n")
+        
+        for i, match in enumerate(matches[:3], 1):  # Show top 3 results
+            metadata = match.get('metadata', {})
+            source = metadata.get('source_file', 'Unknown')
+            text = metadata.get('text', '')
+            score = match.get('score', 0)
+            
+            # Clean and truncate text
+            text = text.strip()
+            if len(text) > 400:
+                text = text[:400] + "..."
+            
+            response_parts.append(f"\n[{i}] From {source} (Relevance: {score:.2f}):\n{text}")
+            sources.append(source)
+        
+        if len(matches) > 3:
+            response_parts.append(f"\n\n💡 Found {len(matches)} total matches. Showing top 3 most relevant.")
+        
+        answer = "\n".join(response_parts)
+        
+        return {
+            "answer": answer,
+            "sources": list(set(sources)),
+            "confidence": self._assess_confidence(matches),
+            "context_used": len(matches),
+            "mode": "local"
+        }
     
 
     
